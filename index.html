@@ -26,17 +26,22 @@
   .sigline { width: 70%; border-top: 1px solid #000; margin-top: 2px; }
   .signame { font-weight: bold; margin-top: 4px; min-height: 18px; }
   .sigcap { font-size: 14px; }
-  #proofList { border: 1px solid #999; min-height: 380px; padding: 8px; }
-  #proofList:empty::before { content: "Proof of documents will show here, big"; color: #aaa; font-size: 13px; }
-  .pimg { position: relative; margin-bottom: 10px; text-align: center; break-inside: avoid; }
-  .pimg img { max-width: 100%; max-height: 120mm; object-fit: contain; }
-  .rm { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: #b91c1c; color: #fff; font-size: 18px; cursor: pointer; padding: 0; }
+
+  #proofList { border: 1px solid #999; min-height: 380px; padding: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; align-content: flex-start; }
+  #proofList:empty::before { content: "Proof of documents will show here"; color: #aaa; font-size: 13px; }
+  .pimg { break-inside: avoid; }
+  .pimg img { width: 100%; height: auto; display: block; }
+  .ctl { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; font-family: Arial, sans-serif; font-size: 12px; }
+  .ctl input[type=range] { flex: 1; min-width: 40px; }
+  .ctl button { border: 0; border-radius: 4px; background: #555; color: #fff; padding: 4px 8px; font-size: 14px; cursor: pointer; }
+  .ctl button.x { background: #b91c1c; }
+
   .buttons { max-width: 800px; margin: 14px auto 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   button.main { padding: 10px 18px; font-size: 15px; border: 0; border-radius: 4px; background: #2563eb; color: #fff; cursor: pointer; font-family: inherit; }
   button.gray { background: #555; }
   #msg { text-align: center; margin-top: 10px; font-size: 14px; color: #166534; min-height: 18px; }
   .note { max-width: 800px; margin: 10px auto 0; font-size: 12px; color: #666; text-align: center; }
-  .locked input[type=file], .locked .rm { display: none; }
+  .locked input[type=file], .locked .ctl { display: none; }
   .locked td input, .locked .nobox input { pointer-events: none; }
   .locked select { pointer-events: none; appearance: none; -webkit-appearance: none; }
 
@@ -44,7 +49,7 @@
   @media print {
     body { background: #fff; padding: 0; }
     .sheet { border: 0; padding: 0; max-width: none; }
-    .buttons, .note, #msg, input[type=file], .rm { display: none !important; }
+    .buttons, .note, #msg, input[type=file], .ctl { display: none !important; }
     select { appearance: none; -webkit-appearance: none; }
     #proofList:empty::before { content: ""; }
     #proofList { min-height: 120mm; }
@@ -98,7 +103,7 @@
 <script>
   var ids = ['number','date','name','middle','surname','address','contact','currency','amount'];
   var sigData = '';
-  var proof = [];
+  var proof = [];   /* each item: { src: dataURL, w: width in percent } */
 
   function $(id) { return document.getElementById(id); }
   function msg(t) { $('msg').textContent = t; }
@@ -141,23 +146,52 @@
   });
 
   /* Proof of documents */
+  function setWidth(el, w) { el.style.width = 'calc(' + w + '% - 8px)'; }
+
+  function move(i, d) {
+    var j = i + d;
+    if (j < 0 || j >= proof.length) return;
+    var t = proof[i]; proof[i] = proof[j]; proof[j] = t;
+    renderProof();
+  }
+
   function renderProof() {
     var box = $('proofList');
     box.innerHTML = '';
-    proof.forEach(function (src, i) {
-      var w = document.createElement('div'); w.className = 'pimg';
-      var img = new Image(); img.src = src;
-      var b = document.createElement('button'); b.className = 'rm'; b.textContent = '×';
-      b.onclick = function () { proof.splice(i, 1); renderProof(); };
-      w.appendChild(img); w.appendChild(b); box.appendChild(w);
+    proof.forEach(function (item, i) {
+      var w = document.createElement('div');
+      w.className = 'pimg';
+      setWidth(w, item.w);
+
+      var ctl = document.createElement('div');
+      ctl.className = 'ctl';
+
+      var left = document.createElement('button'); left.textContent = '◀';
+      left.onclick = function () { move(i, -1); };
+      var right = document.createElement('button'); right.textContent = '▶';
+      right.onclick = function () { move(i, 1); };
+
+      var slider = document.createElement('input');
+      slider.type = 'range'; slider.min = 15; slider.max = 100; slider.step = 5; slider.value = item.w;
+      slider.oninput = function () { item.w = parseInt(slider.value, 10); setWidth(w, item.w); };
+
+      var rm = document.createElement('button'); rm.className = 'x'; rm.textContent = '×';
+      rm.onclick = function () { proof.splice(i, 1); renderProof(); };
+
+      ctl.appendChild(left); ctl.appendChild(slider); ctl.appendChild(right); ctl.appendChild(rm);
+
+      var img = new Image(); img.src = item.src;
+      w.appendChild(ctl); w.appendChild(img);
+      box.appendChild(w);
     });
   }
+
   $('proofFile').addEventListener('change', function (e) {
     var files = Array.prototype.slice.call(e.target.files);
     Promise.all(files.map(function (f) {
       return new Promise(function (res) {
         var r = new FileReader();
-        r.onload = function () { res(r.result); };
+        r.onload = function () { res({ src: r.result, w: 50 }); };
         r.readAsDataURL(f);
       });
     })).then(function (list) { proof = proof.concat(list); renderProof(); e.target.value = ''; });
@@ -181,7 +215,9 @@
       if (d) {
         ids.forEach(function (i) { if (d[i] !== undefined) $(i).value = d[i]; });
         sigData = d.sig || '';
-        proof = d.proof || [];
+        proof = (d.proof || []).map(function (p) {
+          return typeof p === 'string' ? { src: p, w: 50 } : p;
+        });
       }
     } catch (e) {}
     if (!$('date').value) $('date').value = todayText();
@@ -190,7 +226,7 @@
 
   function setLocked(on) {
     $('sheet').classList.toggle('locked', on);
-    msg(on ? 'Preview mode. Press Edit to change.' : '');
+    msg(on ? 'Preview mode. Print.' : '');
   }
   function submitForm() {
     saveForm();
