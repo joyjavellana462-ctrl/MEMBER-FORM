@@ -27,32 +27,47 @@
   .signame { font-weight: bold; margin-top: 4px; min-height: 18px; }
   .sigcap { font-size: 14px; }
 
-  #proofList { border: 1px solid #999; min-height: 380px; padding: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; align-content: flex-start; }
-  #proofList:empty::before { content: "Proof of documents will show here"; color: #aaa; font-size: 13px; }
-  .pimg { break-inside: avoid; }
-  .pimg img { width: 100%; height: auto; display: block; }
-  .ctl { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; font-family: Arial, sans-serif; font-size: 12px; }
-  .ctl input[type=range] { flex: 1; min-width: 40px; }
-  .ctl button { border: 0; border-radius: 4px; background: #555; color: #fff; padding: 4px 8px; font-size: 14px; cursor: pointer; }
-  .ctl button.x { background: #b91c1c; }
+  /* Proof of documents: free layout area */
+  .tools { font-family: Arial, sans-serif; font-size: 13px; margin-bottom: 8px; }
+  .tools select { font-size: 14px; padding: 6px; margin-top: 6px; }
+  .trow { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .tb { border: 0; border-radius: 4px; background: #555; color: #fff; padding: 8px 12px; font-size: 14px; cursor: pointer; }
+  .tb.red { background: #b91c1c; }
+  .tb:disabled { opacity: .4; }
+  .tip { color: #555; margin: 6px 0 0; }
+  #proofBox { position: relative; container-type: inline-size; width: 100%; border: 1px solid #999; background: #fff; break-inside: avoid; }
+  .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 13px; font-family: Arial, sans-serif; pointer-events: none; text-align: center; padding: 10px; }
+  .it { position: absolute; touch-action: none; cursor: move; user-select: none; -webkit-user-select: none; }
+  .it .clip { width: 100%; height: 100%; overflow: hidden; }
+  .it img { display: block; max-width: none; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+  .it.sel { outline: 2px dashed #2563eb; }
+  .h { position: absolute; display: none; touch-action: none; z-index: 2; }
+  .it.sel .hse { display: block; right: -14px; bottom: -14px; width: 28px; height: 28px; border-radius: 50%; background: #2563eb; border: 2px solid #fff; cursor: nwse-resize; }
+  .cropon .it.sel .eh { display: block; background: #f59e0b; border: 2px solid #fff; border-radius: 6px; }
+  .el { left: -9px; top: 50%; width: 18px; height: 44px; margin-top: -22px; cursor: ew-resize; }
+  .er { right: -9px; top: 50%; width: 18px; height: 44px; margin-top: -22px; cursor: ew-resize; }
+  .et { top: -9px; left: 50%; width: 44px; height: 18px; margin-left: -22px; cursor: ns-resize; }
+  .eb { bottom: -9px; left: 50%; width: 44px; height: 18px; margin-left: -22px; cursor: ns-resize; }
 
   .buttons { max-width: 800px; margin: 14px auto 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   button.main { padding: 10px 18px; font-size: 15px; border: 0; border-radius: 4px; background: #2563eb; color: #fff; cursor: pointer; font-family: inherit; }
   button.gray { background: #555; }
   #msg { text-align: center; margin-top: 10px; font-size: 14px; color: #166534; min-height: 18px; }
   .note { max-width: 800px; margin: 10px auto 0; font-size: 12px; color: #666; text-align: center; }
-  .locked input[type=file], .locked .ctl { display: none; }
+  .locked .tools, .locked .h { display: none !important; }
+  .locked .it { pointer-events: none; outline: none; }
   .locked td input, .locked .nobox input { pointer-events: none; }
   .locked select { pointer-events: none; appearance: none; -webkit-appearance: none; }
+  .locked #sigFile { display: none; }
 
   @page { size: A4; margin: 10mm; }
   @media print {
     body { background: #fff; padding: 0; }
     .sheet { border: 0; padding: 0; max-width: none; }
-    .buttons, .note, #msg, input[type=file], .ctl { display: none !important; }
+    .buttons, .note, #msg, #sigFile, .tools, .h, .empty { display: none !important; }
     select { appearance: none; -webkit-appearance: none; }
-    #proofList:empty::before { content: ""; }
-    #proofList { min-height: 120mm; }
+    .it.sel { outline: none; }
+    #proofSec.newpage { break-before: page; }
   }
 </style>
 </head>
@@ -85,9 +100,27 @@
   <div class="signame" id="fullName"></div>
   <div class="sigcap">Signature</div>
 
-  <h2>Proof of documents</h2>
-  <input type="file" id="proofFile" accept="image/*" multiple>
-  <div id="proofList"></div>
+  <div id="proofSec">
+    <h2>Proof of documents</h2>
+    <div class="tools">
+      <input type="file" id="proofFile" accept="image/*" multiple>
+      <div>
+        <select id="areaMode">
+          <option value="same">Space: under the signature</option>
+          <option value="page">Space: new full page</option>
+        </select>
+      </div>
+      <div class="trow">
+        <button class="tb" id="bCrop">✂ Crop: OFF</button>
+        <button class="tb" id="bReset">Reset crop</button>
+        <button class="tb" id="bFront">Bring to front</button>
+        <button class="tb" id="bBack">Send to back</button>
+        <button class="tb red" id="bDel">Delete</button>
+      </div>
+      <p class="tip">Tap a document to select it. Drag it to move. Drag the blue dot to resize. Turn Crop ON, then drag the orange handles to cut the edges.</p>
+    </div>
+    <div id="proofBox"></div>
+  </div>
 </div>
 
 <div id="msg"></div>
@@ -103,10 +136,20 @@
 <script>
   var ids = ['number','date','name','middle','surname','address','contact','currency','amount'];
   var sigData = '';
-  var proof = [];   /* each item: { src: dataURL, w: width in percent } */
+  var proof = [];        /* items: { src, ar, x, y, fw, cl, cr, ct, cb } (sizes in cqw = % of box width) */
+  var els = new Map();
+  var sel = null;
+  var cropMode = false;
+  var mode = 'same';
+  var RATIO = { same: 115 / 190, page: 255 / 190 };
+  var box = document.getElementById('proofBox');
 
   function $(id) { return document.getElementById(id); }
   function msg(t) { $('msg').textContent = t; }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function boxH() { return RATIO[mode] * 100; }
+  function visW(it) { return it.fw * (1 - it.cl - it.cr); }
+  function visH(it) { return it.fw * it.ar * (1 - it.ct - it.cb); }
 
   function todayText() {
     return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -133,9 +176,9 @@
 
   /* Signature */
   function showSig() {
-    var box = $('sigBox');
-    box.innerHTML = '';
-    if (sigData) { var img = new Image(); img.src = sigData; box.appendChild(img); }
+    var b = $('sigBox');
+    b.innerHTML = '';
+    if (sigData) { var img = new Image(); img.src = sigData; b.appendChild(img); }
   }
   $('sigFile').addEventListener('change', function (e) {
     var f = e.target.files[0];
@@ -145,61 +188,210 @@
     r.readAsDataURL(f);
   });
 
-  /* Proof of documents */
-  function setWidth(el, w) { el.style.width = 'calc(' + w + '% - 8px)'; }
+  /* ---------- Proof of documents ---------- */
+  function layout(it, el) {
+    el.style.left = it.x + 'cqw';
+    el.style.top = it.y + 'cqw';
+    el.style.width = visW(it) + 'cqw';
+    el.style.height = visH(it) + 'cqw';
+    el._img.style.width = it.fw + 'cqw';
+    el._img.style.marginLeft = (-it.fw * it.cl) + 'cqw';
+    el._img.style.marginTop = (-it.fw * it.ar * it.ct) + 'cqw';
+  }
 
-  function move(i, d) {
-    var j = i + d;
-    if (j < 0 || j >= proof.length) return;
-    var t = proof[i]; proof[i] = proof[j]; proof[j] = t;
-    renderProof();
+  function fit(it) {
+    var BH = boxH();
+    var k = 1 - it.cl - it.cr;
+    var maxW = (100 - it.x) / k;
+    var maxH = (BH - it.y) / (it.ar * (1 - it.ct - it.cb));
+    it.fw = Math.min(it.fw, maxW, maxH);
+  }
+
+  function apply(kind, it, s, dx, dy) {
+    var BH = boxH();
+    var fh = s.fw * s.ar;
+    if (kind === 'move') {
+      it.x = clamp(s.x + dx, 0, Math.max(0, 100 - visW(it)));
+      it.y = clamp(s.y + dy, 0, Math.max(0, BH - visH(it)));
+    } else if (kind === 'se') {
+      var k = 1 - s.cl - s.cr;
+      var vw = Math.max(6, s.fw * k + dx);
+      var maxW = (100 - s.x) / k;
+      var maxH = (BH - s.y) / (s.ar * (1 - s.ct - s.cb));
+      it.fw = Math.min(vw / k, maxW, maxH);
+    } else if (kind === 'l') {
+      var cl = clamp(s.cl + dx / s.fw, Math.max(0, s.cl - s.x / s.fw), 0.92 - s.cr);
+      it.cl = cl; it.x = s.x + (cl - s.cl) * s.fw;
+    } else if (kind === 'r') {
+      var lowR = Math.max(0, 1 - s.cl - (100 - s.x) / s.fw);
+      it.cr = clamp(s.cr - dx / s.fw, lowR, 0.92 - s.cl);
+    } else if (kind === 't') {
+      var ct = clamp(s.ct + dy / fh, Math.max(0, s.ct - s.y / fh), 0.92 - s.cb);
+      it.ct = ct; it.y = s.y + (ct - s.ct) * fh;
+    } else if (kind === 'b') {
+      var lowB = Math.max(0, 1 - s.ct - (BH - s.y) / fh);
+      it.cb = clamp(s.cb - dy / fh, lowB, 0.92 - s.ct);
+    }
+  }
+
+  function startDrag(e, kind, it, el) {
+    e.preventDefault();
+    e.stopPropagation();
+    select(it);
+    var t = e.currentTarget;
+    var u = box.clientWidth / 100;
+    var x0 = e.clientX, y0 = e.clientY;
+    var s = { x: it.x, y: it.y, fw: it.fw, ar: it.ar, cl: it.cl, cr: it.cr, ct: it.ct, cb: it.cb };
+    try { t.setPointerCapture(e.pointerId); } catch (err) {}
+    t.onpointermove = function (ev) {
+      apply(kind, it, s, (ev.clientX - x0) / u, (ev.clientY - y0) / u);
+      layout(it, el);
+    };
+    var end = function () { t.onpointermove = null; t.onpointerup = null; t.onpointercancel = null; };
+    t.onpointerup = end;
+    t.onpointercancel = end;
+  }
+
+  function select(it) {
+    sel = it;
+    els.forEach(function (el, item) { el.classList.toggle('sel', item === sel); });
+    updateTools();
+  }
+
+  function updateTools() {
+    ['bReset', 'bFront', 'bBack', 'bDel'].forEach(function (id) { $(id).disabled = !sel; });
+    $('bCrop').textContent = '✂ Crop: ' + (cropMode ? 'ON' : 'OFF');
   }
 
   function renderProof() {
-    var box = $('proofList');
     box.innerHTML = '';
-    proof.forEach(function (item, i) {
-      var w = document.createElement('div');
-      w.className = 'pimg';
-      setWidth(w, item.w);
+    els.clear();
+    if (!proof.length) {
+      var em = document.createElement('div');
+      em.className = 'empty';
+      em.textContent = 'Add your documents above. They will appear here.';
+      box.appendChild(em);
+    }
+    proof.forEach(function (it) {
+      var el = document.createElement('div');
+      el.className = 'it';
+      var clip = document.createElement('div');
+      clip.className = 'clip';
+      var img = new Image();
+      img.src = it.src;
+      img.draggable = false;
+      clip.appendChild(img);
+      el.appendChild(clip);
+      el._img = img;
+      ['se', 'l', 'r', 't', 'b'].forEach(function (k) {
+        var h = document.createElement('div');
+        h.className = 'h ' + (k === 'se' ? 'hse' : 'eh e' + k);
+        h.onpointerdown = function (ev) { startDrag(ev, k, it, el); };
+        el.appendChild(h);
+      });
+      el.onpointerdown = function (ev) { startDrag(ev, 'move', it, el); };
+      el.classList.toggle('sel', it === sel);
+      layout(it, el);
+      box.appendChild(el);
+      els.set(it, el);
+    });
+    updateTools();
+  }
 
-      var ctl = document.createElement('div');
-      ctl.className = 'ctl';
+  box.addEventListener('pointerdown', function (e) { if (e.target === box) select(null); });
 
-      var left = document.createElement('button'); left.textContent = '◀';
-      left.onclick = function () { move(i, -1); };
-      var right = document.createElement('button'); right.textContent = '▶';
-      right.onclick = function () { move(i, 1); };
+  function applyMode() {
+    box.style.aspectRatio = '1 / ' + RATIO[mode];
+    $('proofSec').classList.toggle('newpage', mode === 'page');
+    $('areaMode').value = mode;
+  }
+  function keepInside() {
+    var BH = boxH();
+    proof.forEach(function (it) {
+      it.x = clamp(it.x, 0, Math.max(0, 100 - visW(it)));
+      it.y = clamp(it.y, 0, Math.max(0, BH - visH(it)));
+    });
+  }
+  $('areaMode').addEventListener('change', function () {
+    mode = this.value;
+    applyMode(); keepInside(); renderProof();
+  });
 
-      var slider = document.createElement('input');
-      slider.type = 'range'; slider.min = 15; slider.max = 100; slider.step = 5; slider.value = item.w;
-      slider.oninput = function () { item.w = parseInt(slider.value, 10); setWidth(w, item.w); };
+  $('bCrop').onclick = function () {
+    cropMode = !cropMode;
+    box.classList.toggle('cropon', cropMode);
+    updateTools();
+  };
+  $('bReset').onclick = function () {
+    if (!sel) return;
+    var it = sel;
+    it.x = Math.max(0, it.x - it.cl * it.fw);
+    it.y = Math.max(0, it.y - it.ct * it.fw * it.ar);
+    it.cl = it.cr = it.ct = it.cb = 0;
+    fit(it);
+    layout(it, els.get(it));
+  };
+  $('bFront').onclick = function () {
+    if (!sel) return;
+    proof.splice(proof.indexOf(sel), 1); proof.push(sel); renderProof();
+  };
+  $('bBack').onclick = function () {
+    if (!sel) return;
+    proof.splice(proof.indexOf(sel), 1); proof.unshift(sel); renderProof();
+  };
+  $('bDel').onclick = function () {
+    if (!sel) return;
+    proof.splice(proof.indexOf(sel), 1); sel = null; renderProof();
+  };
 
-      var rm = document.createElement('button'); rm.className = 'x'; rm.textContent = '×';
-      rm.onclick = function () { proof.splice(i, 1); renderProof(); };
-
-      ctl.appendChild(left); ctl.appendChild(slider); ctl.appendChild(right); ctl.appendChild(rm);
-
-      var img = new Image(); img.src = item.src;
-      w.appendChild(ctl); w.appendChild(img);
-      box.appendChild(w);
+  function loadImg(file) {
+    return new Promise(function (res) {
+      var r = new FileReader();
+      r.onload = function () {
+        var im = new Image();
+        im.onload = function () {
+          var max = 2000, w = im.naturalWidth, h = im.naturalHeight, src = r.result;
+          if (Math.max(w, h) > max) {
+            var k = max / Math.max(w, h);
+            var c = document.createElement('canvas');
+            c.width = Math.round(w * k); c.height = Math.round(h * k);
+            var g = c.getContext('2d');
+            g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+            g.drawImage(im, 0, 0, c.width, c.height);
+            src = c.toDataURL('image/jpeg', 0.9);
+          }
+          res({ src: src, ar: h / w });
+        };
+        im.onerror = function () { res(null); };
+        im.src = r.result;
+      };
+      r.readAsDataURL(file);
     });
   }
 
   $('proofFile').addEventListener('change', function (e) {
     var files = Array.prototype.slice.call(e.target.files);
-    Promise.all(files.map(function (f) {
-      return new Promise(function (res) {
-        var r = new FileReader();
-        r.onload = function () { res({ src: r.result, w: 50 }); };
-        r.readAsDataURL(f);
+    Promise.all(files.map(loadImg)).then(function (list) {
+      var BH = boxH();
+      var cx = 2, rowH = 0;
+      var cy = proof.length ? Math.max.apply(null, proof.map(function (p) { return p.y + visH(p); })) + 2 : 2;
+      list.forEach(function (o) {
+        if (!o) return;
+        var fw = Math.min(31, 0.9 * BH / o.ar);
+        var h = fw * o.ar;
+        if (cx + fw > 98) { cx = 2; cy += rowH + 2; rowH = 0; }
+        proof.push({ src: o.src, ar: o.ar, x: cx, y: Math.min(cy, Math.max(0, BH - h)), fw: fw, cl: 0, cr: 0, ct: 0, cb: 0 });
+        cx += fw + 2;
+        rowH = Math.max(rowH, h);
       });
-    })).then(function (list) { proof = proof.concat(list); renderProof(); e.target.value = ''; });
+      renderProof();
+      e.target.value = '';
+    });
   });
 
-  /* Save / load */
+  /* ---------- Save / load ---------- */
   function saveForm() {
-    var data = { sig: sigData, proof: proof };
+    var data = { sig: sigData, proof: proof, mode: mode };
     ids.forEach(function (i) { data[i] = $(i).value; });
     try { localStorage.setItem('memberForm', JSON.stringify(data)); msg('Saved on this device.'); return; }
     catch (e) {}
@@ -215,18 +407,18 @@
       if (d) {
         ids.forEach(function (i) { if (d[i] !== undefined) $(i).value = d[i]; });
         sigData = d.sig || '';
-        proof = (d.proof || []).map(function (p) {
-          return typeof p === 'string' ? { src: p, w: 50 } : p;
-        });
+        proof = (d.proof || []).filter(function (p) { return p && p.ar; });
+        if (d.mode === 'same' || d.mode === 'page') mode = d.mode;
       }
     } catch (e) {}
     if (!$('date').value) $('date').value = todayText();
-    showSig(); renderProof(); updateName();
+    showSig(); applyMode(); renderProof(); updateName();
   }
 
   function setLocked(on) {
+    if (on) select(null);
     $('sheet').classList.toggle('locked', on);
-    msg(on ? 'Preview mode. Print.' : '');
+    msg(on ? 'Preview mode. Press Edit to change.' : '');
   }
   function submitForm() {
     saveForm();
