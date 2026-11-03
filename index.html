@@ -1,263 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Member Form</title>
 <style>
-:root{--bg:#f3f1ec;--card:#fff;--ink:#1c2433;--mute:#5d6678;--line:#cfd3da;--accent:#1f5f5b;--accent-ink:#fff;--err:#b3261e;--ok:#1f6b3a;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141922;--card:#1d2431;--ink:#e8ebf1;--mute:#9aa3b5;--line:#39435a;--accent:#5fb3ab;--accent-ink:#0d1a19;--err:#ff8a80;--ok:#7fd09a}}
-:root[data-theme="dark"]{--bg:#141922;--card:#1d2431;--ink:#e8ebf1;--mute:#9aa3b5;--line:#39435a;--accent:#5fb3ab;--accent-ink:#0d1a19;--err:#ff8a80;--ok:#7fd09a}
-*{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
-h1{font:600 28px/1.2 Georgia,"Times New Roman",serif;margin:0}
-.sub{color:var(--mute);margin:4px 0 0}
-.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
-.numbox{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:6px;padding:6px 10px;background:var(--card)}
-.numbox label{font:600 14px Georgia,serif;white-space:nowrap}
-.numbox input{border:0;border-bottom:1px dashed var(--mute);background:transparent;width:120px;font:600 20px Georgia,serif;color:var(--ink);padding:2px 4px}
-.numbox input:focus{outline:none;border-bottom-color:var(--accent)}
-fieldset{border:1px solid var(--line);border-radius:8px;background:var(--card);padding:16px;margin:0 0 16px}
-legend{font:600 17px Georgia,serif;padding:0 6px}
-.grid{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
-.span3{grid-column:1/-1}
-@media(max-width:620px){.grid{grid-template-columns:1fr}}
-.f label{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
-.f input,.f select{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
-.f input:focus,.f select:focus,button:focus-visible,.drop:focus-within{outline:3px solid var(--accent);outline-offset:1px}
-.amt{display:flex;gap:6px}.amt select{width:72px;flex:none}
-.err{color:var(--err);font-size:13px;min-height:18px;margin:2px 0 0}
-.drop{border:2px dashed var(--line);border-radius:8px;padding:16px;text-align:center;color:var(--mute);cursor:pointer;display:block;background:var(--bg)}
-.drop input{position:absolute;opacity:0;width:1px;height:1px}
-.drop strong{color:var(--ink);display:block}
-.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-.th{position:relative;width:110px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg);font-size:12px}
-.th img{display:block;width:100%;height:80px;object-fit:cover}
-.th .nm{padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.th .doc{height:80px;display:grid;place-items:center;font:600 18px Georgia,serif;color:var(--mute)}
-.th button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;line-height:1}
-.sigbox{height:110px;border:1px solid var(--line);border-radius:6px;margin-top:12px;display:grid;place-items:center;background:var(--bg);overflow:hidden}
-.sigbox img{max-height:100%;max-width:100%}
-.sigbox span{color:var(--mute);font-size:14px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-button.b{padding:11px 20px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);font:600 15px system-ui,sans-serif;cursor:pointer}
-button.b.p{background:var(--accent);color:var(--accent-ink)}
-button.b:disabled{opacity:.5;cursor:not-allowed}
-.msg{margin-top:14px;padding:12px 14px;border-radius:6px;border:1px solid var(--ok);color:var(--ok);font-weight:600}
-#preview{display:none}
-.sheet{background:#fff;color:#111;border:1px solid var(--line);border-radius:4px;padding:28px;font-family:Georgia,serif}
-.sheet .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px}
-.sheet h2{margin:0;font-size:24px}
-.sheet .no{border:2px solid #111;padding:4px 12px;font-weight:700;font-size:18px}
-.sheet table{width:100%;border-collapse:collapse;margin-bottom:16px}
-.sheet td{border:1px solid #999;padding:8px 10px;vertical-align:top}
-.sheet td:first-child{width:30%;background:#f1f1f1;font-weight:700;font-size:14px}
-.sheet h3{font-size:15px;margin:16px 0 8px}
-.sheet .imgs{display:flex;flex-wrap:wrap;gap:10px}
-.sheet .imgs img{max-width:200px;max-height:200px;border:1px solid #999}
-.sheet .imgs span{border:1px solid #999;padding:6px 10px;font-size:14px}
-.sheet .sig{margin-top:24px;width:260px}
-.sheet .sig .line{border-bottom:1px solid #111;min-height:80px;display:flex;align-items:flex-end}
-.sheet .sig img{max-height:80px;max-width:100%}
-.sheet .sig p{margin:4px 0 0;font-size:13px}
-.hidden{display:none!important}
-@media print{
-body{background:#fff}
-.wrap>*:not(#preview){display:none!important}
-#preview{display:block!important}
-#preview .actions,#preview .msg,#preview .hint{display:none!important}
-.wrap{padding:0;max-width:none}
-.sheet{border:0;padding:0}
-}
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 16px; background: #f3f4f6; color: #111; }
+  .sheet { max-width: 800px; margin: 0 auto; background: #fff; padding: 28px; border: 1px solid #ccc; }
+  .head { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #111; padding-bottom: 8px; margin-bottom: 14px; }
+  .head h1 { margin: 0; font-size: 28px; }
+  .nobox { border: 2px solid #111; padding: 4px 10px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+  .nobox input { width: 70px; border: 0; border-bottom: 1px solid #888; font: inherit; font-weight: bold; text-align: center; background: transparent; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #555; padding: 8px 10px; text-align: left; }
+  th { width: 32%; background: #f1f1f1; font-size: 15px; }
+  td input, td select { width: 100%; border: 0; font: inherit; font-size: 16px; background: transparent; outline: none; padding: 2px 0; }
+  td input:focus { background: #eef4ff; }
+  .upper { text-transform: uppercase; }
+  .amt { display: flex; gap: 6px; align-items: center; }
+  .amt select { width: 56px; flex: none; }
+  h2 { font-size: 17px; margin: 18px 0 6px; }
+  .sigimg { height: 90px; display: flex; align-items: flex-end; }
+  .sigimg img { max-height: 90px; max-width: 70%; }
+  .sigline { width: 70%; border-top: 1px solid #000; margin-top: 2px; }
+  .signame { font-weight: bold; margin-top: 4px; min-height: 18px; }
+  .sigcap { font-size: 14px; }
+  #proofList { border: 1px solid #999; min-height: 380px; padding: 8px; }
+  #proofList:empty::before { content: "Proof of documents will show here, big"; color: #aaa; font-size: 13px; }
+  .pimg { position: relative; margin-bottom: 10px; text-align: center; break-inside: avoid; }
+  .pimg img { max-width: 100%; max-height: 120mm; object-fit: contain; }
+  .rm { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: #b91c1c; color: #fff; font-size: 18px; cursor: pointer; padding: 0; }
+  .buttons { max-width: 800px; margin: 14px auto 0; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  button.main { padding: 10px 18px; font-size: 15px; border: 0; border-radius: 4px; background: #2563eb; color: #fff; cursor: pointer; font-family: inherit; }
+  button.gray { background: #555; }
+  #msg { text-align: center; margin-top: 10px; font-size: 14px; color: #166534; min-height: 18px; }
+  .note { max-width: 800px; margin: 10px auto 0; font-size: 12px; color: #666; text-align: center; }
+  .locked input[type=file], .locked .rm { display: none; }
+  .locked td input, .locked .nobox input { pointer-events: none; }
+  .locked select { pointer-events: none; appearance: none; -webkit-appearance: none; }
+
+  @page { size: A4; margin: 10mm; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .sheet { border: 0; padding: 0; max-width: none; }
+    .buttons, .note, #msg, input[type=file], .rm { display: none !important; }
+    select { appearance: none; -webkit-appearance: none; }
+    #proofList:empty::before { content: ""; }
+    #proofList { min-height: 120mm; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-<div class="head" id="formHead">
-<div><h1>Member Form</h1><p class="sub">Fill in the details, then press Submit.</p></div>
+<div class="sheet" id="sheet">
+  <div class="head">
+    <h1>Member Form</h1>
+    <div class="nobox">No. <input type="text" id="number"></div>
+  </div>
+
+  <table>
+    <tr><th>Date</th><td><input type="text" id="date"></td></tr>
+    <tr><th>Name</th><td><input type="text" id="name" class="upper"></td></tr>
+    <tr><th>Middle name</th><td><input type="text" id="middle" class="upper"></td></tr>
+    <tr><th>Surname</th><td><input type="text" id="surname" class="upper"></td></tr>
+    <tr><th>Address</th><td><input type="text" id="address" class="upper"></td></tr>
+    <tr><th>Contact number</th><td><input type="tel" id="contact"></td></tr>
+    <tr><th>Amount</th><td>
+      <div class="amt">
+        <select id="currency"><option>₱</option><option>$</option><option>€</option></select>
+        <input type="text" id="amount" inputmode="decimal" placeholder="0.00">
+      </div>
+    </td></tr>
+  </table>
+
+  <h2>Signature</h2>
+  <input type="file" id="sigFile" accept="image/png,image/jpeg">
+  <div class="sigimg" id="sigBox"></div>
+  <div class="sigline"></div>
+  <div class="signame" id="fullName"></div>
+  <div class="sigcap">Signature</div>
+
+  <h2>Proof of documents</h2>
+  <input type="file" id="proofFile" accept="image/*" multiple>
+  <div id="proofList"></div>
 </div>
 
-<form id="form" novalidate onsubmit="return false">
-<fieldset>
-<legend>Details</legend>
-<div class="grid">
-<div class="f"><label for="no">Number</label><input id="no" inputmode="numeric" placeholder="e.g. 0001"><p class="err" data-for="no"></p></div>
-<div class="f"><label for="date">Date</label><input id="date" type="date"><p class="err" data-for="date"></p></div>
-<div class="f"><label for="amount">Amount</label><div class="amt"><select id="cur" aria-label="Currency"><option>₱</option><option>$</option><option>€</option></select><input id="amount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div><p class="err" data-for="amount"></p></div>
-<div class="f"><label for="first">Name</label><input id="first" autocomplete="given-name"><p class="err" data-for="first"></p></div>
-<div class="f"><label for="middle">Middle name</label><input id="middle" autocomplete="additional-name"><p class="err" data-for="middle"></p></div>
-<div class="f"><label for="last">Surname</label><input id="last" autocomplete="family-name"><p class="err" data-for="last"></p></div>
-<div class="f span3"><label for="address">Address</label><input id="address" autocomplete="street-address"><p class="err" data-for="address"></p></div>
-<div class="f"><label for="contact">Contact number</label><input id="contact" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 0917 123 4567"><p class="err" data-for="contact"></p></div>
+<div id="msg"></div>
+<div class="buttons">
+  <button class="main" onclick="submitForm()">Submit</button>
+  <button class="main" onclick="saveForm()">Save</button>
+  <button class="main gray" onclick="setLocked(false)">Edit</button>
+  <button class="main gray" onclick="setLocked(true)">Preview</button>
+  <button class="main" onclick="window.print()">Print</button>
 </div>
-</fieldset>
-
-<fieldset>
-<legend>Proof of documents</legend>
-<label class="drop"><input type="file" id="proof" accept="image/*,application/pdf" multiple><strong>Choose files to upload</strong>Photos or PDFs. You can add more than one.</label>
-<div class="thumbs" id="proofList"></div>
-<p class="err" data-for="proof"></p>
-</fieldset>
-
-<fieldset>
-<legend>Signature</legend>
-<label class="drop"><input type="file" id="sig" accept="image/*"><strong>Choose a signature image</strong>PNG or JPG of your signature.</label>
-<div class="sigbox" id="sigBox"><span>No signature added</span></div>
-<p class="err" data-for="sig"></p>
-</fieldset>
-
-<div class="actions">
-<button class="b p" id="btnSend" type="button">Submit</button>
-<button class="b" id="btnSubmit" type="button">Save</button>
-<button class="b" id="btnEdit" type="button">Edit</button>
-<button class="b" id="btnPreview" type="button">Preview</button>
-<button class="b" id="btnPrint" type="button">Print</button>
-</div>
-<div id="status" role="status"></div>
-</form>
-
-<section id="preview" aria-label="Preview">
-<div class="sheet" id="sheet"></div>
-<div class="actions" style="margin-top:16px">
-<button class="b p" id="pvSend" type="button">Submit</button>
-<button class="b" id="pvSubmit" type="button">Save</button>
-<button class="b" id="pvEdit" type="button">Edit</button>
-<button class="b" id="pvPrint" type="button">Print</button>
-</div>
-<div id="pvStatus" role="status"></div>
-<p class="hint" style="color:var(--mute);font-size:13px">If the print window doesn’t open, open this page in its own browser tab and press Ctrl+P (Cmd+P on Mac). Only the form above will print.</p>
-</section>
-</div>
+<p class="note">If the print window doesn’t open, open this page in its own browser tab and press Ctrl+P (Cmd+P on Mac). Only the form above will print.</p>
 
 <script>
-(function(){
-var $=function(id){return document.getElementById(id)};
-var proofs=[],sigUrl=null,sigFile=null,submitted=false,sending=false;
-var SCRIPT_URL='https://script.google.com/macros/s/AKfycbz-WBmbhvfFtRLNADemk0jOjQuyU94msITYFlshsH6VQG6gsqBAek6plC9ZLr8sxuZH/exec';
-$('date').value=new Date().toISOString().slice(0,10);
+  var ids = ['number','date','name','middle','surname','address','contact','currency','amount'];
+  var sigData = '';
+  var proof = [];
 
-function renderProofs(){
-  var box=$('proofList');box.innerHTML='';
-  proofs.forEach(function(f,i){
-    var d=document.createElement('div');d.className='th';
-    if(f.type.indexOf('image/')===0){var im=document.createElement('img');im.src=f.url;im.alt=f.name;d.appendChild(im)}
-    else{var x=document.createElement('div');x.className='doc';x.textContent='PDF';d.appendChild(x)}
-    var n=document.createElement('div');n.className='nm';n.textContent=f.name;n.title=f.name;d.appendChild(n);
-    var b=document.createElement('button');b.type='button';b.setAttribute('aria-label','Remove '+f.name);b.textContent='×';
-    b.onclick=function(){proofs.splice(i,1);renderProofs()};
-    d.appendChild(b);box.appendChild(d);
+  function $(id) { return document.getElementById(id); }
+  function msg(t) { $('msg').textContent = t; }
+
+  function todayText() {
+    return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function updateName() {
+    $('fullName').textContent = [$('name').value, $('middle').value, $('surname').value]
+      .filter(function (s) { return s.trim(); }).join(' ').toUpperCase();
+  }
+  ['name','middle','surname'].forEach(function (i) { $(i).addEventListener('input', updateName); });
+
+  /* Amount with commas */
+  $('amount').addEventListener('input', function () {
+    var v = this.value.replace(/[^\d.]/g, '');
+    var p = v.split('.');
+    var whole = p[0].replace(/^0+(?=\d)/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    this.value = p.length > 1 ? whole + '.' + p.slice(1).join('').slice(0, 2) : whole;
   });
-}
-$('proof').addEventListener('change',function(e){
-  var list=Array.prototype.slice.call(e.target.files);list.forEach(function(f){var r=new FileReader();r.onload=function(){proofs.push({name:f.name,type:f.type,file:f,url:r.result});renderProofs();setErr('proof','');$('proof').value=''};r.readAsDataURL(f)});
-  
-});
-$('sig').addEventListener('change',function(e){
-  var f=e.target.files[0];if(!f)return;
-  if(f.type.indexOf('image/')!==0){setErr('sig','Choose an image file (PNG or JPG).');return}
-  
-  sigFile=f;var r=new FileReader();r.onload=function(){sigUrl=r.result;var b0=$('sigBox');b0.innerHTML='';var im0=document.createElement('img');im0.src=sigUrl;im0.alt='Signature';b0.appendChild(im0);setErr('sig','');$('sig').value=''};r.readAsDataURL(f);
-  
-  
-});
-
-function setErr(k,t){var p=document.querySelector('.err[data-for="'+k+'"]');if(p)p.textContent=t}
-function val(){
-  var ok=true;
-  [['no','Enter the number.'],['date','Choose a date.'],['first','Enter the name.'],['middle','Enter the middle name.'],['last','Enter the surname.'],['address','Enter the address.'],['contact','Enter the contact number.']].forEach(function(r){
-    var empty=!$(r[0]).value.trim();setErr(r[0],empty?r[1]:'');if(empty)ok=false});
-  var a=parseFloat($('amount').value);
-  var ph=$('contact').value.replace(/\D/g,'');if($('contact').value.trim()&&ph.length<7){setErr('contact','Enter a valid contact number.');ok=false}var bad=!(a>0);setErr('amount',bad?'Enter an amount greater than 0.':'');if(bad)ok=false;
-  setErr('proof',proofs.length?'':'Add at least one proof of document.');if(!proofs.length)ok=false;
-  setErr('sig',sigUrl?'':'Add your signature image.');if(!sigUrl)ok=false;
-  if(!ok){var first=document.querySelector('.err:not(:empty)');if(first)first.scrollIntoView({block:'center',behavior:'smooth'})}
-  return ok;
-}
-function fmtDate(v){var d=new Date(v+'T00:00:00');return isNaN(d)?v:d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
-function td(t){var e=document.createElement('td');e.textContent=t;return e}
-function row(k,v){var r=document.createElement('tr');r.appendChild(td(k));r.appendChild(td(v));return r}
-function build(){
-  var s=$('sheet');s.innerHTML='';
-  var top=document.createElement('div');top.className='top';
-  var h=document.createElement('h2');h.textContent='Member Form';
-  var no=document.createElement('div');no.className='no';no.textContent='No. '+$('no').value.trim();
-  top.appendChild(h);top.appendChild(no);s.appendChild(top);
-  var t=document.createElement('table');
-  var full=[$('first').value.trim(),$('middle').value.trim(),$('last').value.trim()].filter(Boolean).join(' ');
-  var amt=parseFloat($('amount').value);
-  t.appendChild(row('Date',fmtDate($('date').value)));
-  t.appendChild(row('Name',$('first').value.trim()||'—'));
-  t.appendChild(row('Middle name',$('middle').value.trim()||'—'));
-  t.appendChild(row('Surname',$('last').value.trim()||'—'));t.appendChild(row('Address',$('address').value.trim()||'—'));t.appendChild(row('Contact number',$('contact').value.trim()||'—'));
-  t.appendChild(row('Amount',isNaN(amt)?'—':$('cur').value+' '+amt.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})));
-  s.appendChild(t);
-  var h3=document.createElement('h3');h3.textContent='Proof of documents';s.appendChild(h3);
-  var im=document.createElement('div');im.className='imgs';
-  if(!proofs.length){var n=document.createElement('span');n.textContent='None attached';im.appendChild(n)}
-  proofs.forEach(function(f){
-    if(f.type.indexOf('image/')===0){var i=document.createElement('img');i.src=f.url;i.alt=f.name;im.appendChild(i)}
-    else{var sp=document.createElement('span');sp.textContent='PDF attached: '+f.name;im.appendChild(sp)}
+  $('amount').addEventListener('blur', function () {
+    var v = this.value.replace(/,/g, '');
+    if (v === '' || isNaN(v)) return;
+    this.value = parseFloat(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   });
-  s.appendChild(im);
-  var sg=document.createElement('div');sg.className='sig';
-  var ln=document.createElement('div');ln.className='line';
-  if(sigUrl){var si=document.createElement('img');si.src=sigUrl;si.alt='Signature';ln.appendChild(si)}
-  sg.appendChild(ln);
-  var p=document.createElement('p');p.textContent=(full||'Signature')+' — Signature';sg.appendChild(p);
-  s.appendChild(sg);
-}
-function showPreview(){build();$('form').classList.add('hidden');$('formHead').classList.add('hidden');$('preview').style.display='block';window.scrollTo(0,0)}
-function showForm(){$('preview').style.display='none';$('form').classList.remove('hidden');$('formHead').classList.remove('hidden')}
-function print(){build();$('form').classList.add('hidden');$('formHead').classList.add('hidden');$('preview').style.display='block';window.scrollTo(0,0);try{window.print()}catch(e){}}
-function summaryText(ref){var a=parseFloat($('amount').value);return ['Member Form','Reference: '+ref,'No.: '+$('no').value.trim(),'Date: '+fmtDate($('date').value),'Name: '+$('first').value.trim(),'Middle name: '+$('middle').value.trim(),'Surname: '+$('last').value.trim(),'Amount: '+$('cur').value+' '+a.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})].join('\n')}
-function copyIt(ref,btn){var t=summaryText(ref);if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){btn.textContent='Copied. Paste it in Messenger.'},function(){btn.textContent='Copy not allowed here'})}else{btn.textContent='Copy not allowed here'}}
-function shareIt(ref,btn){var data={title:'Member Form',text:summaryText(ref)};var files=proofs.map(function(p){return p.file}).concat(sigFile?[sigFile]:[]);try{if(navigator.canShare&&navigator.canShare({files:files}))data.files=files}catch(e){}if(navigator.share){navigator.share(data).catch(function(e){if(!e||e.name!=='AbortError')copyIt(ref,btn)})}else{copyIt(ref,btn)}}
-function saveIt(ref,btn){build();var css='body{font-family:Georgia,serif;margin:24px;color:#111}.top{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:16px}h2{margin:0}.no{border:2px solid #111;padding:4px 12px;font-weight:700}table{width:100%;border-collapse:collapse;margin-bottom:16px}td{border:1px solid #999;padding:8px 10px}td:first-child{width:30%;background:#f1f1f1;font-weight:700}.imgs{display:flex;flex-wrap:wrap;gap:10px}.imgs img{max-width:200px;max-height:200px;border:1px solid #999}.sig{margin-top:24px;width:260px}.line{border-bottom:1px solid #111;min-height:80px;display:flex;align-items:flex-end}.sig img{max-height:80px;max-width:100%}';var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Member Form '+ref+'</title><style>'+css+'</style></head><body>'+$('sheet').innerHTML+'<p>Reference: '+ref+'</p></body></html>';try{var blob=new Blob([html],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Member-Form-'+(($('no').value.trim()||ref).replace(/[^\w-]/g,''))+'.html';document.body.appendChild(a);a.click();a.remove();btn.textContent='Saved to your device'}catch(e){btn.textContent='Save not allowed here'}}
-function note(t,ok){[$('status'),$('pvStatus')].forEach(function(s){s.innerHTML='';var d=document.createElement('div');d.className='msg';if(!ok)d.style.cssText='border-color:var(--err);color:var(--err)';d.textContent=t;s.appendChild(d)})}
-function shrink(url,max){return new Promise(function(res,rej){var im=new Image();im.onload=function(){var s=Math.min(1,max/Math.max(im.width,im.height));var c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',0.72))};im.onerror=function(){rej(new Error('image'))};im.src=url})}
-function sendIt(){
-if(sending)return;
-if(!val()){showForm();return}
-if(!SCRIPT_URL){note('This form is not connected yet. Please tell the admin.');return}
-sending=true;note('Sending… please wait.',true);
-Promise.all(proofs.map(function(p){return p.type.indexOf('image/')===0?shrink(p.url,1400):Promise.resolve(p.url)})).then(function(pr){
-return shrink(sigUrl,700).then(function(sg){
-if(pr.some(function(x){return x.length>4000000}))throw new Error('big');
-return fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({number:$('no').value.trim(),date:$('date').value,first:$('first').value.trim(),middle:$('middle').value.trim(),last:$('last').value.trim(),address:$('address').value.trim(),contact:$('contact').value.trim(),currency:$('cur').value,amount:$('amount').value,proofs:pr,signature:sg})});
-});
-}).then(function(r){return r.json()}).then(function(j){
-sending=false;
-if(j&&j.ok){note('Submitted. Reference '+j.ref+'. You can also press Save to keep a copy.',true);setLock(true)}
-else if(j&&j.error==='duplicate'){showForm();setErr('no','This number is already used. Please use another number.');note('This number is already used. Please use another number.')}
-else{note('Something went wrong. Please try again.')}
-}).catch(function(err){
-sending=false;
-if(err&&err.message==='big')note('The files are too large. Please use smaller photos or PDFs.');
-else note('We could not confirm that your form was sent. Check your internet and try again. If it says the number is already used, your form was probably received.');
-});
-}
-function setLock(on){Array.prototype.forEach.call(document.querySelectorAll('#form input,#form select,#form .th button'),function(i){i.disabled=on});if(!on){$('status').innerHTML='';$('pvStatus').innerHTML=''}}
-function submit(){
-  
-  if(!val()){showForm();return}
-  submitted=true;
-  var ref='REF-'+Date.now().toString(36).toUpperCase();
-  var m='Saved to your device (check your Downloads folder). Reference '+ref+'.';
-  [$('status'),$('pvStatus')].forEach(function(s){s.innerHTML='';var d=document.createElement('div');d.className='msg';d.textContent=m;var r=document.createElement('div');r.className='actions';var b1=document.createElement('button');b1.type='button';b1.className='b p';b1.textContent='Save again';b1.onclick=function(){saveIt(ref,b1)};r.appendChild(b1);d.appendChild(r);s.appendChild(d)});
-  saveIt(ref,{});setLock(true);
-  
-}
-$('btnPreview').onclick=function(){if(val())showPreview()};
-$('btnPrint').onclick=print;
-$('btnSubmit').onclick=submit;$('btnSend').onclick=sendIt;$('pvSend').onclick=sendIt;
-$('pvEdit').onclick=function(){setLock(false);showForm()};$('btnEdit').onclick=function(){setLock(false);$('no').focus();window.scrollTo(0,0)};
-$('pvPrint').onclick=print;
-$('pvSubmit').onclick=submit;
 
-})();
+  /* Signature */
+  function showSig() {
+    var box = $('sigBox');
+    box.innerHTML = '';
+    if (sigData) { var img = new Image(); img.src = sigData; box.appendChild(img); }
+  }
+  $('sigFile').addEventListener('change', function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () { sigData = r.result; showSig(); };
+    r.readAsDataURL(f);
+  });
+
+  /* Proof of documents */
+  function renderProof() {
+    var box = $('proofList');
+    box.innerHTML = '';
+    proof.forEach(function (src, i) {
+      var w = document.createElement('div'); w.className = 'pimg';
+      var img = new Image(); img.src = src;
+      var b = document.createElement('button'); b.className = 'rm'; b.textContent = '×';
+      b.onclick = function () { proof.splice(i, 1); renderProof(); };
+      w.appendChild(img); w.appendChild(b); box.appendChild(w);
+    });
+  }
+  $('proofFile').addEventListener('change', function (e) {
+    var files = Array.prototype.slice.call(e.target.files);
+    Promise.all(files.map(function (f) {
+      return new Promise(function (res) {
+        var r = new FileReader();
+        r.onload = function () { res(r.result); };
+        r.readAsDataURL(f);
+      });
+    })).then(function (list) { proof = proof.concat(list); renderProof(); e.target.value = ''; });
+  });
+
+  /* Save / load */
+  function saveForm() {
+    var data = { sig: sigData, proof: proof };
+    ids.forEach(function (i) { data[i] = $(i).value; });
+    try { localStorage.setItem('memberForm', JSON.stringify(data)); msg('Saved on this device.'); return; }
+    catch (e) {}
+    try {
+      data.proof = [];
+      localStorage.setItem('memberForm', JSON.stringify(data));
+      msg('Saved, but the documents are too big to save. Add them again next time.');
+    } catch (e2) { msg('Could not save on this device.'); }
+  }
+  function loadForm() {
+    try {
+      var d = JSON.parse(localStorage.getItem('memberForm') || 'null');
+      if (d) {
+        ids.forEach(function (i) { if (d[i] !== undefined) $(i).value = d[i]; });
+        sigData = d.sig || '';
+        proof = d.proof || [];
+      }
+    } catch (e) {}
+    if (!$('date').value) $('date').value = todayText();
+    showSig(); renderProof(); updateName();
+  }
+
+  function setLocked(on) {
+    $('sheet').classList.toggle('locked', on);
+    msg(on ? 'Preview mode. Press Edit to change.' : '');
+  }
+  function submitForm() {
+    saveForm();
+    setLocked(true);
+  }
+
+  loadForm();
 </script>
 </body>
 </html>
